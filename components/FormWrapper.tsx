@@ -1,3 +1,4 @@
+"use client"
 import { useState } from 'react'
 import Step1Form from './Step1Form'
 import Step2Form from './Step2Form'
@@ -5,8 +6,10 @@ import Step2Form from './Step2Form'
 export default function FormWrapper() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [aadhaarNumber, setAadhaarNumber] = useState('')
 
-  const handleStep1Complete = () => {
+  const handleStep1Complete = (data: { aadhaarNumber: string, consent: boolean }) => {
+    setAadhaarNumber(data.aadhaarNumber)
     setCurrentStep(2)
   }
 
@@ -45,7 +48,7 @@ export default function FormWrapper() {
         {!isSubmitted ? (
           <>
             {currentStep === 1 && <Step1Form onNext={handleStep1Complete} />}
-            {currentStep === 2 && <Step2Form onSubmitComplete={handleFormComplete} />}
+            {currentStep === 2 && <Step2Form onSubmitComplete={handleFormComplete} aadhaarNumber={aadhaarNumber} />}
           </>
         ) : (
           <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">

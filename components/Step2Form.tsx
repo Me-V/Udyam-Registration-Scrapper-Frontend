@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 type FormData = {
   aadhaarNumber: string;
@@ -23,28 +23,30 @@ export default function Step2Form({
 
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await axios.post("https://udyam-registration-scrapping-backend.onrender.com/api/validate-pan", {
-        pan: data.panNumber,
-      });
+      const response = await axios.post(
+        "https://udyam-registration-scrapping-backend.onrender.com/api/validate-pan",
+        { pan: data.panNumber }
+      );
   
       if (response.data.valid) {
         try {
-          const saveResponse = await axios.post("https://udyam-registration-scrapping-backend.onrender.com/api/submit", {
-            aadhaarNumber,
-            panNumber: data.panNumber,
-            businessName: data.businessName,
-            businessType: data.businessType,
-          });
+          const saveResponse = await axios.post(
+            "https://udyam-registration-scrapping-backend.onrender.com/api/submit",
+            {
+              aadhaarNumber,
+              panNumber: data.panNumber,
+              businessName: data.businessName,
+              businessType: data.businessType,
+            }
+          );
   
           if (saveResponse.status === 201) {
             onSubmitComplete();
           }
-        } catch (err: any) {
-          // Axios throws an error for 400, 500, etc.
-          if (err.response && err.response.status === 400) {
-            alert(err.response.data.error); // Show the backend message
-          } else if (err.response && err.response.status === 402) {
-            alert(err.response.data.error); // Show the backend message
+        } catch (err) {
+          const axiosError = err as AxiosError<{ error: string }>;
+          if (axiosError.response?.status === 400 || axiosError.response?.status === 402) {
+            alert(axiosError.response.data.error); // show backend message
           } else {
             console.error("Submission failed:", err);
           }
